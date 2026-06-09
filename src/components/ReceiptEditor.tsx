@@ -414,15 +414,18 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
             </tr>
             <tr>
               <td className="py-1 px-3 border border-gray-300 text-right">
-                הנחה: %{' '}
-                <Field
-                  value={data.discount}
-                  onChange={(v) => up('discount', parseFloat(v) || 0)}
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  className="w-10 text-center inline-block"
-                />
+                <span>הנחה: </span>
+                <span dir="ltr" className="inline-flex items-baseline gap-0.5">
+                  <Field
+                    value={data.discount}
+                    onChange={(v) => up('discount', parseFloat(v) || 0)}
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="w-10 text-center"
+                  />
+                  <span>%</span>
+                </span>
               </td>
               <td className="py-1 px-3 border border-gray-300 text-left" dir="ltr">
                 {discountAmt > 0 ? `(${fmt(discountAmt)})` : fmt(0)}
@@ -441,15 +444,17 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
             {data.includeVat && (
               <tr>
                 <td className="py-1 px-3 border border-gray-300 text-right">
-                  מע&quot;מ{' '}
-                  <Field
-                    value={data.vatRate}
-                    onChange={(v) => up('vatRate', parseFloat(v) || 18)}
-                    type="number"
-                    min="0"
-                    className="w-8 text-center inline-block"
-                  />
-                  .00%
+                  <span>מע&quot;מ </span>
+                  <span dir="ltr" className="inline-flex items-baseline gap-0.5">
+                    <Field
+                      value={data.vatRate}
+                      onChange={(v) => up('vatRate', parseFloat(v) || 18)}
+                      type="number"
+                      min="0"
+                      className="w-8 text-center"
+                    />
+                    <span>%</span>
+                  </span>
                 </td>
                 <td className="py-1 px-3 border border-gray-300 text-left" dir="ltr">
                   {fmt(vatAmount)}
