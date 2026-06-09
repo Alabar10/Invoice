@@ -197,6 +197,7 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
           onChange={(e) => up('date', e.target.value)}
           className="text-sm bg-transparent focus:outline-none focus:bg-blue-50 rounded px-1 no-export-border"
         />
+        <span className="export-only text-sm">{fmtDate(data.date)}</span>
       </div>
 
       {/* ── DOCUMENT TITLE ── */}
@@ -224,6 +225,7 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
         >
           {data.isOriginal ? 'מקור' : 'העתק'}
         </button>
+        <span className="export-only text-sm text-gray-500">{data.isOriginal ? 'מקור' : 'העתק'}</span>
       </div>
 
       {/* ── SECTION NAME ── */}
@@ -398,6 +400,7 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
                     onChange={(e) => updatePayment(p.id, 'date', e.target.value)}
                     className="text-xs bg-transparent focus:outline-none w-full no-export-border"
                   />
+                  <span className="export-only text-xs">{fmtDate(p.date)}</span>
                 </td>
                 <td className={td} dir="ltr">
                   <Field

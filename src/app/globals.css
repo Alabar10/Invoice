@@ -49,8 +49,29 @@ body {
   pointer-events: none;
 }
 
+.is-exporting input::placeholder,
+.is-exporting textarea::placeholder {
+  color: transparent !important;
+}
+
+.is-exporting input[type="date"] {
+  display: none !important;
+}
+
+.is-exporting select {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
 .is-exporting button {
   display: none !important;
+}
+
+.export-only {
+  display: none;
+}
+.is-exporting .export-only {
+  display: inline !important;
 }
 
 @media print {
