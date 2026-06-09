@@ -221,11 +221,14 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
         </div>
       </div>
 
-      {/* ── DOCUMENT TITLE ROW ── */}
-      <table className="w-full border-collapse mb-0">
+      {/* ── DOCUMENT TITLE ROW (top + bottom rules only, no cell borders) ── */}
+      <table
+        className="w-full border-collapse mb-0"
+        style={{ borderTop: '3px solid #111827', borderBottom: '1px solid #111827' }}
+      >
         <tbody>
           <tr>
-            <td className="border-2 border-gray-700 py-2 px-3 text-right font-bold text-base" style={{ width: '33%' }}>
+            <td className="py-2 px-3 text-right font-bold text-base" style={{ width: '33%' }}>
               <select
                 value={data.documentType}
                 onChange={(e) => up('documentType', e.target.value)}
@@ -237,7 +240,7 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
               </select>
               <span className="export-only font-bold text-base">{data.documentType}</span>
             </td>
-            <td className="border-2 border-gray-700 py-2 px-3 text-center font-bold text-xl" style={{ width: '34%' }}>
+            <td className="py-2 px-3 text-center font-bold text-xl" style={{ width: '34%' }}>
               <span>מספר : </span>
               <Field
                 value={data.documentNumber}
@@ -246,7 +249,7 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
                 className="font-bold text-xl text-center w-28"
               />
             </td>
-            <td className="border-2 border-gray-700 py-2 px-3 text-left font-bold text-base" style={{ width: '33%' }}>
+            <td className="py-2 px-3 text-left font-bold text-base" style={{ width: '33%' }}>
               <button
                 onClick={() => up('isOriginal', !data.isOriginal)}
                 className="hover:text-gray-600 font-bold no-export"
@@ -261,8 +264,8 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
 
       {/* ── INFO BOX (single bordered box, 3 columns, no inner divider) ── */}
       <div
-        className="border-x-2 border-b-2 border-gray-700 mb-3 px-4 py-2 flex justify-between text-xs"
-        style={{ borderTop: 'none' }}
+        className="mb-3 px-4 py-2 flex justify-between text-xs"
+        style={{ borderBottom: '1px solid #111827' }}
       >
         {/* Right column — customer */}
         <div className="text-right" style={{ width: '38%' }}>
