@@ -1,0 +1,28 @@
+// Prisma schema — invoice persistence
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Receipt {
+  id             String   @id @default(cuid())
+  documentType   String
+  documentNumber String
+  date           String
+  time           String   @default("")
+  customerName   String   @default("")
+  subtotal       Float    @default(0)
+  vatAmount      Float    @default(0)
+  total          Float    @default(0)
+  data           Json
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([createdAt])
+}

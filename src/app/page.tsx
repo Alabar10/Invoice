@@ -1,7 +1,9 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import ReceiptEditor from '@/components/ReceiptEditor';
 import { defaultReceiptData, ReceiptData } from '@/types/receipt';
+import { saveReceipt, getReceipt } from './actions';
 
 const GREEN = '#2a9d8f';
 
@@ -19,7 +21,37 @@ export default function Home() {
     };
   });
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [savedNote, setSavedNote] = useState('');
+  const [currentId, setCurrentId] = useState<string | undefined>(undefined);
   const editorRef = useRef<HTMLDivElement>(null);
+
+  // Re-open an existing receipt when navigated to with ?id=...
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('id');
+    if (!id) return;
+    getReceipt(id).then((loaded) => {
+      if (loaded) {
+        setData(loaded);
+        setCurrentId(id);
+      }
+    });
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSavedNote('');
+    try {
+      const id = await saveReceipt(data, currentId);
+      setCurrentId(id);
+      setSavedNote('נשמר ✓');
+      setTimeout(() => setSavedNote(''), 2500);
+    } catch {
+      setSavedNote('שגיאה בשמירה');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const downloadPdf = async () => {
     if (!editorRef.current) return;
@@ -56,6 +88,7 @@ export default function Home() {
     const pad = (n: number) => String(n).padStart(2, '0');
     const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
     const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    setCurrentId(undefined);
     setData({
       ...defaultReceiptData,
       businessName: data.businessName,
@@ -94,6 +127,14 @@ export default function Home() {
 
             <div className="w-px h-5 bg-white/30" />
 
+            {/* Dashboard */}
+            <Link
+              href="/dashboard"
+              className="bg-white/20 hover:bg-white/30 text-white text-sm px-3 py-1.5 rounded-lg transition-colors"
+            >
+              📊 לוח בקרה
+            </Link>
+
             {/* New receipt */}
             <button
               onClick={handleNewReceipt}
@@ -108,6 +149,15 @@ export default function Home() {
               className="bg-white/20 hover:bg-white/30 text-white text-sm px-3 py-1.5 rounded-lg transition-colors"
             >
               🖨 הדפס
+            </button>
+
+            {/* Save */}
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="bg-white/20 hover:bg-white/30 text-white text-sm px-3 py-1.5 rounded-lg transition-colors disabled:opacity-60"
+            >
+              {saving ? 'שומר...' : savedNote || '💾 שמור'}
             </button>
 
             {/* Download PDF */}
