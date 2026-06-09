@@ -33,7 +33,9 @@ export default function Home() {
     if (id) {
       getReceipt(id).then((loaded) => {
         if (loaded) {
-          setData(loaded);
+          // Merge with defaults so receipts saved before newer fields
+          // existed still have every field defined (controlled inputs).
+          setData({ ...defaultReceiptData, ...loaded });
           setCurrentId(id);
         }
       });

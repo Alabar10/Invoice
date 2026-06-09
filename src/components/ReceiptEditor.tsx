@@ -50,7 +50,7 @@ function Field({
     <span className={`inline-block align-baseline ${className}`}>
       <input
         type={type}
-        value={value}
+        value={value ?? ''}
         min={min}
         step={step}
         dir={dir}
