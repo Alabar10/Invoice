@@ -101,7 +101,7 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
   const fmtDate = (d: string) => {
     if (!d) return '';
     const [y, m, day] = d.split('-');
-    return `${day}/${m}/${y}`;
+    return `${day}/${m}/${y.slice(2)}`;
   };
 
   const showPayments =
@@ -114,9 +114,10 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
       className="bg-white border border-gray-300 p-6 mx-auto"
       style={{ fontFamily: 'Arial, Helvetica, sans-serif', maxWidth: '780px', fontSize: '13px' }}
     >
+
       {/* ── HEADER ── */}
-      <div className="flex items-start justify-between mb-3 pb-2">
-        {/* Business name + address (right) */}
+      <div className="border border-gray-600 mb-1 p-3 flex items-start justify-between">
+        {/* Right: business name + address */}
         <div className="flex-1 text-right">
           <Field
             value={data.businessName}
@@ -128,37 +129,8 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
             <Field
               value={data.businessAddress}
               onChange={(v) => up('businessAddress', v)}
-              placeholder="כתובת"
+              placeholder="כתובת העסק"
               className="text-xs text-gray-700 w-full"
-            />
-          </div>
-        </div>
-
-        {/* Logo (center) */}
-        <div className="mx-4 flex-shrink-0">
-          <button
-            onClick={() => fileRef.current?.click()}
-            className="border-2 border-dashed border-gray-300 rounded hover:border-blue-400 transition-colors w-28 h-16 flex items-center justify-center overflow-hidden no-export-border"
-            title="לחץ להוספת לוגו"
-          >
-            {data.logoUrl ? (
-              <img src={data.logoUrl} alt="לוגו" className="max-h-14 max-w-full object-contain" />
-            ) : (
-              <span className="text-gray-400 text-xs text-center px-1">לוגו</span>
-            )}
-          </button>
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleLogo} />
-        </div>
-
-        {/* עוסק מורשה + ח.פ (left) */}
-        <div className="flex-1 text-left">
-          <div className="font-bold text-base">
-            עוסק מורשה{' '}
-            <Field
-              value={data.businessTaxId}
-              onChange={(v) => up('businessTaxId', v)}
-              placeholder="000000000"
-              className="font-bold text-base w-28"
             />
           </div>
           <div className="mt-0.5">
@@ -170,13 +142,42 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
             />
           </div>
         </div>
+
+        {/* Center: logo */}
+        <div className="mx-6 flex-shrink-0">
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="border-2 border-dashed border-gray-300 rounded hover:border-blue-400 transition-colors w-24 h-14 flex items-center justify-center overflow-hidden no-export-border"
+            title="לחץ להוספת לוגו"
+          >
+            {data.logoUrl ? (
+              <img src={data.logoUrl} alt="לוגו" className="max-h-12 max-w-full object-contain" />
+            ) : (
+              <span className="text-gray-300 text-xs">לוגו</span>
+            )}
+          </button>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleLogo} />
+        </div>
+
+        {/* Left: עוסק מורשה + tax ID */}
+        <div className="text-left" style={{ minWidth: '160px' }}>
+          <div className="font-bold text-sm whitespace-nowrap">
+            עוסק מורשה{' '}
+            <Field
+              value={data.businessTaxId}
+              onChange={(v) => up('businessTaxId', v)}
+              placeholder="000000000"
+              className="font-bold text-sm w-24 text-left"
+            />
+          </div>
+        </div>
       </div>
 
       {/* ── DOCUMENT TITLE ROW ── */}
-      <table className="w-full border-collapse mb-0">
+      <table className="w-full border-collapse mb-0" style={{ borderTop: 'none' }}>
         <tbody>
           <tr>
-            <td className="border-2 border-gray-700 py-2 px-3 text-right font-bold text-base w-1/3">
+            <td className="border-2 border-gray-700 py-2 px-3 text-right font-bold text-base" style={{ width: '33%' }}>
               <select
                 value={data.documentType}
                 onChange={(e) => up('documentType', e.target.value)}
@@ -187,130 +188,137 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
                 <option>קבלה</option>
               </select>
             </td>
-            <td className="border-2 border-gray-700 py-2 px-3 text-center font-bold text-xl w-1/3">
-              מספר :{' '}
+            <td className="border-2 border-gray-700 py-2 px-3 text-center font-bold text-xl" style={{ width: '34%' }}>
+              <span>מספר :{' '}</span>
               <Field
                 value={data.documentNumber}
                 onChange={(v) => up('documentNumber', v)}
                 placeholder="00001"
-                className="font-bold text-xl text-center w-28 mr-1"
+                className="font-bold text-xl text-center w-28"
               />
             </td>
-            <td className="border-2 border-gray-700 py-2 px-3 text-left w-1/3 text-sm">
+            <td className="border-2 border-gray-700 py-2 px-3 text-left font-bold text-base" style={{ width: '33%' }}>
               <button
                 onClick={() => up('isOriginal', !data.isOriginal)}
-                className="hover:text-gray-600 no-export-border"
+                className="hover:text-gray-600 no-export-border font-bold"
               >
                 {data.isOriginal ? 'מקור' : 'העתק'}
               </button>
-              <span className="export-only">{data.isOriginal ? 'מקור' : 'העתק'}</span>
+              <span className="export-only font-bold">{data.isOriginal ? 'מקור' : 'העתק'}</span>
             </td>
           </tr>
         </tbody>
       </table>
 
-      {/* ── CUSTOMER / DATE INFO ── */}
+      {/* ── CUSTOMER / REFERENCE INFO ── */}
       <table className="w-full border-collapse mb-3">
         <tbody>
           <tr>
-            {/* Right cell — customer details */}
+            {/* Right cell — customer details (55%) */}
             <td className="border border-gray-400 p-2 align-top" style={{ width: '55%' }}>
-              <div className="text-xs text-gray-500 mb-0.5">לכבוד :</div>
+              <div className="text-xs text-gray-600 mb-0.5">לכבוד :</div>
               <Field
                 value={data.customerName}
                 onChange={(v) => up('customerName', v)}
                 placeholder="שם הלקוח"
-                className="font-bold w-full"
+                className="font-bold w-full text-sm"
               />
-              <Field
-                value={data.customerAddress}
-                onChange={(v) => up('customerAddress', v)}
-                placeholder="רחוב"
-                className="text-xs w-full mt-0.5"
-              />
-              <div className="flex justify-between items-center mt-0.5">
-                <div className="flex items-center gap-1 text-xs">
-                  <span className="text-gray-600">טלפון:</span>
-                  <Field
-                    value={data.customerPhone}
-                    onChange={(v) => up('customerPhone', v)}
-                    placeholder=""
-                    className="text-xs w-28"
-                  />
-                </div>
+              <div className="mt-0.5">
+                <Field
+                  value={data.customerAddress}
+                  onChange={(v) => up('customerAddress', v)}
+                  placeholder="רחוב ומספר"
+                  className="text-xs w-full"
+                />
+              </div>
+              <div className="mt-0.5">
                 <Field
                   value={data.customerCity}
                   onChange={(v) => up('customerCity', v)}
                   placeholder="עיר"
-                  className="text-xs w-20 text-right"
+                  className="text-xs w-full"
                 />
               </div>
-              <div className="flex justify-between items-center mt-0.5">
-                <div className="flex items-center gap-1 text-xs">
-                  <span className="text-gray-600">פקס:</span>
-                  <Field
-                    value={data.customerFax}
-                    onChange={(v) => up('customerFax', v)}
-                    placeholder=""
-                    className="text-xs w-28"
-                  />
-                </div>
-                <span className="text-xs text-gray-400">דף 1 מתוך 1</span>
+              <div className="flex items-center gap-1 mt-0.5 text-xs">
+                <span className="text-gray-600 whitespace-nowrap">טלפון:</span>
+                <Field
+                  value={data.customerPhone}
+                  onChange={(v) => up('customerPhone', v)}
+                  placeholder=""
+                  className="text-xs w-32"
+                />
+              </div>
+              <div className="flex items-center gap-1 mt-0.5 text-xs">
+                <span className="text-gray-600 whitespace-nowrap">פקס:</span>
+                <Field
+                  value={data.customerFax}
+                  onChange={(v) => up('customerFax', v)}
+                  placeholder=""
+                  className="text-xs w-32"
+                />
               </div>
             </td>
 
-            {/* Left cell — reference info */}
+            {/* Left cell — reference info (45%) */}
             <td className="border border-gray-400 p-2 align-top" style={{ width: '45%' }}>
+              {/* מספרכם */}
               <div className="flex justify-between items-center text-xs mb-1">
-                <div className="flex items-center gap-1">
-                  <span className="text-gray-600">שעה :</span>
-                  <Field
-                    value={data.time}
-                    onChange={(v) => up('time', v)}
-                    placeholder="00:00"
-                    className="text-xs w-12"
-                  />
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-gray-600">תאריך:</span>
-                  <input
-                    type="date"
-                    value={data.date}
-                    onChange={(e) => up('date', e.target.value)}
-                    className="text-xs bg-transparent focus:outline-none no-export-border"
-                  />
-                  <span className="export-only text-xs">{fmtDate(data.date)}</span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center text-xs mb-1">
-                <span className="text-gray-600">מספרכם:</span>
                 <Field
                   value={data.customerReference}
                   onChange={(v) => up('customerReference', v)}
                   placeholder=""
-                  className="text-xs w-32 text-left"
+                  className="text-xs w-28 text-left"
                 />
+                <span className="text-gray-600 whitespace-nowrap">:מספרכם</span>
               </div>
+              {/* הקצאה מספר */}
               <div className="flex justify-between items-center text-xs mb-1">
-                <span className="text-gray-600">הקצאה מספר:</span>
                 <Field
                   value={data.allocationNumber}
                   onChange={(v) => up('allocationNumber', v)}
                   placeholder=""
-                  className="text-xs w-32 text-left"
+                  className="text-xs w-28 text-left"
                 />
+                <span className="text-gray-600 whitespace-nowrap">:הקצאה מספר</span>
               </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-gray-600">ע.מ./ת.ז:</span>
+              {/* ע.מ./ת.ז */}
+              <div className="flex justify-between items-center text-xs mb-1">
                 <Field
                   value={data.customerTaxId}
                   onChange={(v) => up('customerTaxId', v)}
                   placeholder=""
-                  className="text-xs w-32 text-left"
+                  className="text-xs w-28 text-left"
                 />
+                <span className="text-gray-600 whitespace-nowrap">:ע.מ./ת.ז</span>
               </div>
-              <div className="text-xs text-left mt-1 text-gray-400">
+              {/* תאריך — bold, own row */}
+              <div className="flex justify-between items-center text-xs mb-0.5 font-bold">
+                <div className="flex items-center gap-1">
+                  <input
+                    type="date"
+                    value={data.date}
+                    onChange={(e) => up('date', e.target.value)}
+                    className="text-xs bg-transparent focus:outline-none no-export-border font-bold"
+                    style={{ direction: 'ltr' }}
+                  />
+                  <span className="export-only font-bold">{fmtDate(data.date)}</span>
+                </div>
+                <span className="whitespace-nowrap">:תאריך</span>
+              </div>
+              {/* שעה — bold, own row */}
+              <div className="flex justify-between items-center text-xs mb-1 font-bold">
+                <Field
+                  value={data.time}
+                  onChange={(v) => up('time', v)}
+                  placeholder="00:00"
+                  className="text-xs w-16 text-left font-bold"
+                />
+                <span className="whitespace-nowrap">:שעה</span>
+              </div>
+              {/* Footer row: דף + date */}
+              <div className="flex justify-between items-center text-xs text-gray-500 mt-1">
                 <span className="export-only">{fmtDate(data.date)}</span>
+                <span>דף 1 מתוך 1</span>
               </div>
             </td>
           </tr>
@@ -318,78 +326,74 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
       </table>
 
       {/* ── ITEMS TABLE ── */}
-      <div className="overflow-x-auto -mx-6 sm:mx-0">
-        <div className="px-6 sm:px-0">
-          <table className="w-full border-collapse mb-1">
-            <thead>
-              <tr>
-                <th className={th + ' w-8 text-center'}>#<br />מס&apos; פריט</th>
-                <th className={th}>תאור פריט</th>
-                <th className={th + ' w-20 text-center'}>כמות<br />יחידות</th>
-                <th className={th + ' w-24 text-center'}>ש&quot;ח ליחידה</th>
-                <th className={th + ' w-24 text-center'}>סה&quot;כ ש&quot;ח</th>
-                <th className="w-5 no-export" />
-              </tr>
-            </thead>
-            <tbody>
-              {data.items.map((item, index) => (
-                <tr key={item.id}>
-                  <td className={td + ' text-center text-gray-500'}>{index + 1}</td>
-                  <td className={td}>
-                    <Field
-                      value={item.description}
-                      onChange={(v) => updateItem(item.id, 'description', v)}
-                      placeholder="תאור פריט"
-                      className="w-full"
-                    />
-                  </td>
-                  <td className={td + ' text-center'}>
-                    <Field
-                      value={item.quantity}
-                      onChange={(v) => updateItem(item.id, 'quantity', v)}
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      className="w-full text-center"
-                    />
-                  </td>
-                  <td className={td} dir="ltr">
-                    <Field
-                      value={item.unitPrice}
-                      onChange={(v) => updateItem(item.id, 'unitPrice', v)}
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      className="w-full text-right"
-                    />
-                  </td>
-                  <td className={td + ' text-left'} dir="ltr">
-                    {fmt(item.quantity * item.unitPrice)}
-                  </td>
-                  <td className="no-export pl-1">
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      disabled={data.items.length === 1}
-                      className="text-gray-300 hover:text-red-400 disabled:opacity-20 text-xs"
-                    >
-                      ✕
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {/* Empty filler row */}
-              <tr>
-                <td className={td + ' text-center text-gray-300'}></td>
-                <td className={td}>&nbsp;</td>
-                <td className={td}></td>
-                <td className={td}></td>
-                <td className={td}></td>
-                <td className="no-export" />
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <table className="w-full border-collapse mb-1">
+        <thead>
+          <tr>
+            <th className={th + ' text-center'} style={{ width: '36px' }}>#<br />מס&apos; פריט</th>
+            <th className={th}>תאור פריט</th>
+            <th className={th + ' text-center'} style={{ width: '72px' }}>כמות<br />יחידות</th>
+            <th className={th + ' text-center'} style={{ width: '90px' }}>ש&quot;ח ליחידה</th>
+            <th className={th + ' text-center'} style={{ width: '90px' }}>סה&quot;כ ש&quot;ח</th>
+            <th className="w-5 no-export" />
+          </tr>
+        </thead>
+        <tbody>
+          {data.items.map((item, index) => (
+            <tr key={item.id}>
+              <td className={td + ' text-center text-gray-500'}>{index + 1}</td>
+              <td className={td}>
+                <Field
+                  value={item.description}
+                  onChange={(v) => updateItem(item.id, 'description', v)}
+                  placeholder="תאור פריט"
+                  className="w-full"
+                />
+              </td>
+              <td className={td + ' text-center'}>
+                <Field
+                  value={item.quantity}
+                  onChange={(v) => updateItem(item.id, 'quantity', v)}
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className="w-full text-center"
+                />
+              </td>
+              <td className={td} dir="ltr">
+                <Field
+                  value={item.unitPrice}
+                  onChange={(v) => updateItem(item.id, 'unitPrice', v)}
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className="w-full text-right"
+                />
+              </td>
+              <td className={td + ' text-left font-medium'} dir="ltr">
+                {fmt(item.quantity * item.unitPrice)}
+              </td>
+              <td className="no-export pl-1">
+                <button
+                  onClick={() => removeItem(item.id)}
+                  disabled={data.items.length === 1}
+                  className="text-gray-300 hover:text-red-400 disabled:opacity-20 text-xs"
+                >
+                  ✕
+                </button>
+              </td>
+            </tr>
+          ))}
+          {/* Empty filler row */}
+          <tr>
+            <td className={td}></td>
+            <td className={td}>&nbsp;</td>
+            <td className={td}></td>
+            <td className={td}></td>
+            <td className={td}></td>
+            <td className="no-export" />
+          </tr>
+        </tbody>
+      </table>
 
       <div className="text-right mb-3 no-export">
         <button onClick={addItem} className="text-xs text-blue-500 hover:underline">
@@ -397,21 +401,23 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
         </button>
       </div>
 
-      {/* ── TOTALS ── */}
-      <div className="flex justify-start mb-6">
-        <table className="border-collapse text-xs" style={{ minWidth: '230px' }}>
+      {/* ── TOTALS (left-aligned, matching reference) ── */}
+      <div className="flex justify-end mb-6">
+        <table className="border-collapse text-xs" style={{ minWidth: '260px' }}>
           <tbody>
+            {/* סה"כ ללא מע"מ */}
             <tr>
-              <td className="py-1 px-3 border border-gray-300 text-right font-semibold">
+              <td className="py-1 px-3 border border-gray-300 text-right font-bold">
                 סה&quot;כ ללא מע&quot;מ:
               </td>
-              <td className="py-1 px-3 border border-gray-300 text-left" dir="ltr">
+              <td className="py-1 px-3 border border-gray-300 text-left font-bold" dir="ltr" style={{ minWidth: '90px' }}>
                 {fmt(subtotal)}
               </td>
-              <td className="py-1 px-3 border border-gray-300 text-left text-gray-500" dir="ltr">
+              <td className="py-1 px-3 border border-gray-300 text-left text-gray-500" dir="ltr" style={{ minWidth: '60px' }}>
                 {fmt(data.items.reduce((s, i) => s + i.quantity, 0))}
               </td>
             </tr>
+            {/* הנחה */}
             <tr>
               <td className="py-1 px-3 border border-gray-300 text-right">
                 <span>הנחה: </span>
@@ -422,25 +428,27 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
                     type="number"
                     min="0"
                     step="0.01"
-                    className="w-10 text-center"
+                    className="w-12 text-center"
                   />
-                  <span>%</span>
+                  <span> %</span>
                 </span>
               </td>
               <td className="py-1 px-3 border border-gray-300 text-left" dir="ltr">
-                {discountAmt > 0 ? `(${fmt(discountAmt)})` : fmt(0)}
+                {fmt(discountAmt)}
               </td>
-              <td className="py-1 px-3 border border-gray-300"></td>
+              <td className="py-1 px-3 border border-gray-300" />
             </tr>
+            {/* סה"כ לאחר הנחה */}
             <tr>
-              <td className="py-1 px-3 border border-gray-300 text-right">
+              <td className="py-1 px-3 border border-gray-300 text-right font-bold">
                 סה&quot;כ לאחר הנחה:
               </td>
-              <td className="py-1 px-3 border border-gray-300 text-left" dir="ltr">
+              <td className="py-1 px-3 border border-gray-300 text-left font-bold" dir="ltr">
                 {fmt(afterDiscount)}
               </td>
-              <td className="py-1 px-3 border border-gray-300"></td>
+              <td className="py-1 px-3 border border-gray-300" />
             </tr>
+            {/* מע"מ */}
             {data.includeVat && (
               <tr>
                 <td className="py-1 px-3 border border-gray-300 text-right">
@@ -451,7 +459,8 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
                       onChange={(v) => up('vatRate', parseFloat(v) || 18)}
                       type="number"
                       min="0"
-                      className="w-8 text-center"
+                      step="0.01"
+                      className="w-12 text-center"
                     />
                     <span>%</span>
                   </span>
@@ -459,23 +468,24 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
                 <td className="py-1 px-3 border border-gray-300 text-left" dir="ltr">
                   {fmt(vatAmount)}
                 </td>
-                <td className="py-1 px-3 border border-gray-300"></td>
+                <td className="py-1 px-3 border border-gray-300" />
               </tr>
             )}
+            {/* סה"כ לתשלום */}
             <tr className="font-bold">
-              <td className="py-1.5 px-3 border border-gray-400 text-right bg-gray-50">
+              <td className="py-1.5 px-3 border border-gray-500 text-right bg-gray-50">
                 סה&quot;כ לתשלום:
               </td>
-              <td className="py-1.5 px-3 border border-gray-400 text-left bg-gray-50" dir="ltr">
+              <td className="py-1.5 px-3 border border-gray-500 text-left bg-gray-50" dir="ltr">
                 {fmt(total)}
               </td>
-              <td className="py-1.5 px-3 border border-gray-400 bg-gray-50"></td>
+              <td className="py-1.5 px-3 border border-gray-500 bg-gray-50" />
             </tr>
           </tbody>
         </table>
       </div>
 
-      {/* ── PAYMENTS (only for קבלה types) ── */}
+      {/* ── PAYMENTS (קבלה types only) ── */}
       {showPayments && (
         <div className="mb-6">
           <div className="font-bold text-sm mb-2 text-right border-b border-gray-300 pb-1">
@@ -549,12 +559,8 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
             </tbody>
             <tfoot>
               <tr className="font-bold border-t-2 border-gray-400">
-                <td colSpan={3} className="py-1.5 px-3 text-right text-xs">
-                  סה&quot;כ:
-                </td>
-                <td className="py-1.5 px-3 text-left text-xs" dir="ltr">
-                  {fmt(paymentTotal)}
-                </td>
+                <td colSpan={3} className="py-1.5 px-3 text-right text-xs">סה&quot;כ:</td>
+                <td className="py-1.5 px-3 text-left text-xs" dir="ltr">{fmt(paymentTotal)}</td>
                 <td className="no-export" />
               </tr>
             </tfoot>
@@ -568,22 +574,21 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
       )}
 
       {/* ── SIGNATURE & FOOTER ── */}
-      <div className="mt-8 pt-4 border-t border-gray-300">
-        <div className="flex justify-between items-end mb-8 text-sm">
-          <div className="text-left">
-            <div className="text-xs text-gray-500 mb-1">מפיק המסמך:</div>
-            <div className="border-b border-gray-500 w-48">&nbsp;</div>
+      <div className="mt-10 pt-4 border-t border-gray-300">
+        <div className="flex justify-between items-end mb-4 text-sm">
+          {/* Right: מפיק המסמך */}
+          <div className="text-right">
+            <div className="text-xs text-gray-600 mb-1">מפיק המסמך:</div>
+            <div className="text-xs">
+              {data.businessName || 'שם העסק'} ___________
+            </div>
           </div>
-          <div className="text-right font-bold">
-            {data.businessName || 'שם העסק'} ____________
+          {/* Left: שם המקבל etc. */}
+          <div className="text-left text-xs">
+            שם המקבל_____________ חתימה___________ תאריך__________
           </div>
         </div>
-        <div className="flex justify-between text-xs text-gray-600 mb-2">
-          <div>
-            שם המקבל_____________ חתימה________ תאריך__________
-          </div>
-        </div>
-        <div className="flex justify-between items-end mt-4 pt-2 border-t border-gray-200 text-xs text-gray-400">
+        <div className="flex justify-between items-center mt-4 pt-2 border-t border-gray-200 text-xs text-gray-400">
           <div>מסמך זה הופק ע&quot;י מערכת הפקת חשבוניות</div>
           <div>דף 1 מתוך 1</div>
         </div>
