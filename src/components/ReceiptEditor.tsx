@@ -92,6 +92,10 @@ function InfoRow({
 const th = 'py-1.5 px-2 text-xs font-bold border border-gray-400 bg-gray-100 text-right';
 const td = 'py-1 px-2 border border-gray-300 text-xs';
 
+// Borderless items table — horizontal rules supplied by the row, not the cell
+const itemTh = 'py-1.5 px-2 text-xs font-bold text-right';
+const itemTd = 'py-1.5 px-2 text-xs';
+
 const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref) => {
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -367,23 +371,23 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
         </div>
       </div>
 
-      {/* ── ITEMS TABLE ── */}
+      {/* ── ITEMS TABLE (horizontal rules only, no grid / no shading) ── */}
       <table className="w-full border-collapse mb-1">
         <thead>
-          <tr>
-            <th className={th + ' text-center'} style={{ width: '40px' }}>#<br />מס&apos; פריט</th>
-            <th className={th}>תאור פריט</th>
-            <th className={th + ' text-center'} style={{ width: '78px' }}>כמות<br />יחידות</th>
-            <th className={th + ' text-center'} style={{ width: '95px' }}>ש&quot;ח ליחידה</th>
-            <th className={th + ' text-center'} style={{ width: '95px' }}>סה&quot;כ ש&quot;ח</th>
+          <tr style={{ borderTop: '1px solid #111827', borderBottom: '1px solid #111827' }}>
+            <th className={itemTh + ' text-center'} style={{ width: '40px' }}>#<br />מס&apos; פריט</th>
+            <th className={itemTh}>תאור פריט</th>
+            <th className={itemTh + ' text-center'} style={{ width: '78px' }}>כמות<br />יחידות</th>
+            <th className={itemTh + ' text-center'} style={{ width: '95px' }}>ש&quot;ח ליחידה</th>
+            <th className={itemTh + ' text-center'} style={{ width: '95px' }}>סה&quot;כ ש&quot;ח</th>
             <th className="w-5 no-export" />
           </tr>
         </thead>
         <tbody>
           {data.items.map((item, index) => (
-            <tr key={item.id}>
-              <td className={td + ' text-center text-gray-600'}>{index + 1}</td>
-              <td className={td}>
+            <tr key={item.id} style={{ borderBottom: '1px solid #d1d5db' }}>
+              <td className={itemTd + ' text-center text-gray-600'}>{index + 1}</td>
+              <td className={itemTd}>
                 <Field
                   value={item.description}
                   onChange={(v) => updateItem(item.id, 'description', v)}
@@ -391,7 +395,7 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
                   className="w-full"
                 />
               </td>
-              <td className={td + ' text-center'}>
+              <td className={itemTd + ' text-center'}>
                 <Field
                   value={item.quantity}
                   onChange={(v) => updateItem(item.id, 'quantity', v)}
@@ -403,7 +407,7 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
                   display={fmt(item.quantity)}
                 />
               </td>
-              <td className={td + ' text-left'} dir="ltr">
+              <td className={itemTd + ' text-left'} dir="ltr">
                 <Field
                   value={item.unitPrice}
                   onChange={(v) => updateItem(item.id, 'unitPrice', v)}
@@ -415,7 +419,7 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
                   display={fmt(item.unitPrice)}
                 />
               </td>
-              <td className={td + ' text-left'} dir="ltr">
+              <td className={itemTd + ' text-left'} dir="ltr">
                 {fmt(item.quantity * item.unitPrice)}
               </td>
               <td className="no-export pl-1">
@@ -438,23 +442,26 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
         </button>
       </div>
 
-      {/* ── TOTALS (left side, matching reference) ── */}
+      {/* ── TOTALS (left side; only the amounts column is boxed) ── */}
       <div className="flex justify-end mb-6">
         <table className="border-collapse text-xs">
           <tbody>
+            {/* סה"כ ללא מע"מ */}
             <tr>
-              <td className="py-1 px-3 border border-gray-400 text-right font-bold whitespace-nowrap">
-                סה&quot;כ ללא מע&quot;מ:
-              </td>
-              <td className="py-1 px-3 border border-gray-400 text-left font-bold" dir="ltr" style={{ minWidth: '95px' }}>
-                {fmt(subtotal)}
-              </td>
-              <td className="py-1 px-3 border border-gray-400 text-left" dir="ltr" style={{ minWidth: '65px' }}>
+              <td className="py-1 px-3 text-right text-gray-700" dir="ltr" style={{ minWidth: '55px' }}>
                 <span className="underline">{fmt(qtyTotal)}</span>
               </td>
+              <td className="py-1 px-3 text-right font-bold whitespace-nowrap">
+                סה&quot;כ ללא מע&quot;מ:
+              </td>
+              <td className="py-1 px-3 text-left font-bold border-t-2 border-x border-gray-700" dir="ltr" style={{ minWidth: '110px' }}>
+                {fmt(subtotal)}
+              </td>
             </tr>
+            {/* הנחה */}
             <tr>
-              <td className="py-1 px-3 border border-gray-400 text-right whitespace-nowrap">
+              <td />
+              <td className="py-1 px-3 text-right whitespace-nowrap">
                 <span>הנחה: </span>
                 <span dir="ltr" className="inline-flex items-baseline gap-1">
                   <Field
@@ -470,23 +477,25 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
                   <span>%</span>
                 </span>
               </td>
-              <td className="py-1 px-3 border border-gray-400 text-left" dir="ltr">
+              <td className="py-1 px-3 text-left border-b border-x border-gray-700" dir="ltr">
                 {fmt(discountAmt)}
               </td>
-              <td className="py-1 px-3 border border-gray-400" />
             </tr>
+            {/* סה"כ לאחר הנחה */}
             <tr>
-              <td className="py-1 px-3 border border-gray-400 text-right font-bold whitespace-nowrap">
+              <td />
+              <td className="py-1 px-3 text-right font-bold whitespace-nowrap">
                 סה&quot;כ לאחר הנחה:
               </td>
-              <td className="py-1 px-3 border border-gray-400 text-left font-bold" dir="ltr">
+              <td className="py-1 px-3 text-left font-bold border-t border-x border-gray-700" dir="ltr">
                 {fmt(afterDiscount)}
               </td>
-              <td className="py-1 px-3 border border-gray-400" />
             </tr>
+            {/* מע"מ */}
             {data.includeVat && (
               <tr>
-                <td className="py-1 px-3 border border-gray-400 text-right whitespace-nowrap">
+                <td />
+                <td className="py-1 px-3 text-right whitespace-nowrap">
                   <span dir="ltr" className="inline-flex items-baseline gap-1">
                     <Field
                       value={data.vatRate}
@@ -502,20 +511,20 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
                   </span>
                   <span> מע&quot;מ</span>
                 </td>
-                <td className="py-1 px-3 border border-gray-400 text-left" dir="ltr">
+                <td className="py-1 px-3 text-left border-b border-x border-gray-700" dir="ltr">
                   {fmt(vatAmount)}
                 </td>
-                <td className="py-1 px-3 border border-gray-400" />
               </tr>
             )}
+            {/* סה"כ לתשלום */}
             <tr className="font-bold">
-              <td className="py-1.5 px-3 border-2 border-gray-700 text-right whitespace-nowrap">
+              <td />
+              <td className="py-1.5 px-3 text-right whitespace-nowrap">
                 סה&quot;כ לתשלום:
               </td>
-              <td className="py-1.5 px-3 border-2 border-gray-700 text-left" dir="ltr">
+              <td className="py-1.5 px-3 text-left border-2 border-gray-700" dir="ltr">
                 {fmt(total)}
               </td>
-              <td className="py-1.5 px-3 border-2 border-gray-700" />
             </tr>
           </tbody>
         </table>
