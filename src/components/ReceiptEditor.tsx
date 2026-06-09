@@ -1,6 +1,7 @@
 'use client';
-import { forwardRef, useRef, ChangeEvent, ReactNode } from 'react';
+import { forwardRef, useRef, useState, ChangeEvent, ReactNode } from 'react';
 import { ReceiptData, ReceiptItem, PaymentRow } from '@/types/receipt';
+import SignaturePad from './SignaturePad';
 import {
   calcSubtotal,
   calcDiscount,
@@ -98,6 +99,7 @@ const itemTd = 'py-1.5 px-2 text-xs';
 
 const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref) => {
   const fileRef = useRef<HTMLInputElement>(null);
+  const [sigOpen, setSigOpen] = useState(false);
 
   const up = (field: keyof ReceiptData, value: unknown) =>
     onChange({ ...data, [field]: value });
@@ -159,6 +161,7 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
     data.documentType === 'חשבונית מס קבלה' || data.documentType === 'קבלה';
 
   return (
+    <>
     <div
       ref={ref}
       dir="rtl"
@@ -623,27 +626,74 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
 
       {/* ── SIGNATURE & FOOTER ── */}
       <div className="mt-12 text-sm">
-        <div className="flex justify-between items-start mb-1">
-          {/* Right: document producer (editable) */}
+        <div className="flex justify-between items-end gap-6 mb-1">
+          {/* Right: document producer (editable name) */}
           <div className="text-right">
             <div className="font-bold mb-1">מפיק המסמך:</div>
-            <div className="flex items-baseline gap-1">
-              <Field
-                value={data.documentProducer}
-                onChange={(v) => up('documentProducer', v)}
-                placeholder={data.businessName || 'שם המפיק'}
-                className="text-xs w-44 text-right"
-              />
-              <span className="text-xs">_______________</span>
-            </div>
+            <Field
+              value={data.documentProducer}
+              onChange={(v) => up('documentProducer', v)}
+              placeholder={data.businessName || 'שם המפיק'}
+              className="text-xs w-44 text-right border-b border-gray-400"
+            />
           </div>
-          {/* Left: recipient signature line (filled by hand after print) */}
-          <div className="text-left text-xs pt-6">
-            שם המקבל_____________ חתימה___________ תאריך__________
+
+          {/* Left: recipient name / signature / date */}
+          <div className="flex items-end gap-4 text-xs">
+            {/* שם המקבל */}
+            <div className="text-center">
+              <Field
+                value={data.recipientName}
+                onChange={(v) => up('recipientName', v)}
+                placeholder=""
+                className="w-28 text-center border-b border-gray-400"
+              />
+              <div className="text-gray-500 mt-1">שם המקבל</div>
+            </div>
+
+            {/* חתימה — opens the signature pad */}
+            <div className="text-center">
+              <div className="h-10 flex items-end justify-center border-b border-gray-400 w-32">
+                {data.recipientSignature ? (
+                  <img
+                    src={data.recipientSignature}
+                    alt="חתימה"
+                    className="max-h-10 object-contain"
+                  />
+                ) : null}
+              </div>
+              <button
+                onClick={() => setSigOpen(true)}
+                className="text-blue-500 hover:underline mt-1 no-export"
+              >
+                {data.recipientSignature ? 'ערוך חתימה' : '✍️ חתום כאן'}
+              </button>
+              <div className="text-gray-500 mt-1 export-only">חתימה</div>
+            </div>
+
+            {/* תאריך */}
+            <div className="text-center">
+              <Field
+                value={data.recipientDate}
+                onChange={(v) => up('recipientDate', v)}
+                placeholder=""
+                className="w-24 text-center border-b border-gray-400"
+                dir="ltr"
+              />
+              <div className="text-gray-500 mt-1">תאריך</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
+    <SignaturePad
+      open={sigOpen}
+      initial={data.recipientSignature}
+      onClose={() => setSigOpen(false)}
+      onSave={(dataUrl) => up('recipientSignature', dataUrl)}
+    />
+    </>
   );
 });
 

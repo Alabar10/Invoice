@@ -38,6 +38,9 @@ export interface ReceiptData {
   discount: number;
   payments: PaymentRow[];
   documentProducer: string;
+  recipientName: string;
+  recipientSignature: string; // data-URL of the drawn signature image
+  recipientDate: string;
 }
 
 function nowDate() {
@@ -74,4 +77,7 @@ export const defaultReceiptData: ReceiptData = {
   discount: 0,
   payments: [{ id: '1', method: 'העברה בנקאית', details: '', date: nowDate(), amount: 0 }],
   documentProducer: '',
+  recipientName: '',
+  recipientSignature: '',
+  recipientDate: '',
 };
