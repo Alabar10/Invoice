@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import ReceiptEditor from '@/components/ReceiptEditor';
 import { defaultReceiptData, ReceiptData } from '@/types/receipt';
-import { saveReceipt, getReceipt } from './actions';
+import { saveReceipt, getReceipt, getProfile } from './actions';
 
 const GREEN = '#2a9d8f';
 
@@ -26,14 +26,22 @@ export default function Home() {
   const [currentId, setCurrentId] = useState<string | undefined>(undefined);
   const editorRef = useRef<HTMLDivElement>(null);
 
-  // Re-open an existing receipt when navigated to with ?id=...
+  // On load: re-open an existing receipt (?id=), otherwise pre-fill the
+  // business fields from the saved company profile.
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get('id');
-    if (!id) return;
-    getReceipt(id).then((loaded) => {
-      if (loaded) {
-        setData(loaded);
-        setCurrentId(id);
+    if (id) {
+      getReceipt(id).then((loaded) => {
+        if (loaded) {
+          setData(loaded);
+          setCurrentId(id);
+        }
+      });
+      return;
+    }
+    getProfile().then((profile) => {
+      if (profile) {
+        setData((prev) => ({ ...prev, ...profile }));
       }
     });
   }, []);

@@ -69,11 +69,50 @@ export async function saveReceipt(
     const saved = id
       ? await prisma.receipt.update({ where: { id }, data: fields })
       : await prisma.receipt.create({ data: fields });
+    // Keep the reusable business profile up to date with each save.
+    await saveProfile(data);
     revalidatePath('/dashboard');
     return { ok: true, id: saved.id };
   } catch {
     return { ok: false, error: 'שגיאה בשמירה' };
   }
+}
+
+export interface BusinessProfile {
+  businessName: string;
+  businessTaxId: string;
+  businessAddress: string;
+  businessPhone: string;
+  logoUrl: string;
+}
+
+/** Upsert the single reusable company profile from a receipt's business fields. */
+async function saveProfile(data: ReceiptData): Promise<void> {
+  const profile = {
+    businessName: data.businessName,
+    businessTaxId: data.businessTaxId,
+    businessAddress: data.businessAddress,
+    businessPhone: data.businessPhone,
+    logoUrl: data.logoUrl,
+  };
+  await prisma.businessProfile.upsert({
+    where: { id: 'default' },
+    create: { id: 'default', ...profile },
+    update: profile,
+  });
+}
+
+/** The saved company profile, used to pre-fill new receipts. */
+export async function getProfile(): Promise<BusinessProfile | null> {
+  const p = await prisma.businessProfile.findUnique({ where: { id: 'default' } });
+  if (!p) return null;
+  return {
+    businessName: p.businessName,
+    businessTaxId: p.businessTaxId,
+    businessAddress: p.businessAddress,
+    businessPhone: p.businessPhone,
+    logoUrl: p.logoUrl,
+  };
 }
 
 /** All receipts, newest first, as lightweight summaries for the dashboard. */

@@ -10,6 +10,18 @@ datasource db {
   provider = "postgresql"
 }
 
+// Single reusable company profile (one row, id = "default").
+// Auto-fills the business fields on every new receipt.
+model BusinessProfile {
+  id              String   @id @default("default")
+  businessName    String   @default("")
+  businessTaxId   String   @default("")
+  businessAddress String   @default("")
+  businessPhone   String   @default("")
+  logoUrl         String   @default("")
+  updatedAt       DateTime @updatedAt
+}
+
 model Receipt {
   id             String   @id @default(cuid())
   documentType   String
