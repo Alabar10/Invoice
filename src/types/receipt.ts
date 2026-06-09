@@ -22,15 +22,30 @@ export interface ReceiptData {
   documentType: string;
   documentNumber: string;
   date: string;
+  time: string;
   isOriginal: boolean;
-  sectionName: string;
   customerName: string;
   customerTaxId: string;
   customerAddress: string;
+  customerCity: string;
+  customerPhone: string;
+  customerFax: string;
+  customerReference: string;
+  allocationNumber: string;
   items: ReceiptItem[];
   includeVat: boolean;
   vatRate: number;
+  discount: number;
   payments: PaymentRow[];
+}
+
+function nowDate() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function nowTime() {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
 export const defaultReceiptData: ReceiptData = {
@@ -39,24 +54,22 @@ export const defaultReceiptData: ReceiptData = {
   businessAddress: '',
   businessPhone: '',
   logoUrl: '',
-  documentType: 'חשבונית מס / קבלה',
+  documentType: 'חשבונית מס',
   documentNumber: '1',
-  date: new Date().toISOString().split('T')[0],
-  isOriginal: true,
-  sectionName: '',
+  date: nowDate(),
+  time: nowTime(),
+  isOriginal: false,
   customerName: '',
   customerTaxId: '',
   customerAddress: '',
+  customerCity: '',
+  customerPhone: '',
+  customerFax: '',
+  customerReference: '',
+  allocationNumber: '',
   items: [{ id: '1', description: '', quantity: 1, unitPrice: 0 }],
   includeVat: true,
   vatRate: 18,
-  payments: [
-    {
-      id: '1',
-      method: 'העברה בנקאית',
-      details: '',
-      date: new Date().toISOString().split('T')[0],
-      amount: 0,
-    },
-  ],
+  discount: 0,
+  payments: [{ id: '1', method: 'העברה בנקאית', details: '', date: nowDate(), amount: 0 }],
 };
