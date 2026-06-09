@@ -13,7 +13,7 @@ datasource db {
 model Receipt {
   id             String   @id @default(cuid())
   documentType   String
-  documentNumber String
+  documentNumber String   @unique
   date           String
   time           String   @default("")
   customerName   String   @default("")

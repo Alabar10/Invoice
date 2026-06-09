@@ -42,10 +42,15 @@ export default function Home() {
     setSaving(true);
     setSavedNote('');
     try {
-      const id = await saveReceipt(data, currentId);
-      setCurrentId(id);
-      setSavedNote('נשמר ✓');
-      setTimeout(() => setSavedNote(''), 2500);
+      const res = await saveReceipt(data, currentId);
+      if (res.ok) {
+        setCurrentId(res.id);
+        setSavedNote('נשמר ✓');
+        setTimeout(() => setSavedNote(''), 2500);
+      } else {
+        setSavedNote(res.error);
+        setTimeout(() => setSavedNote(''), 4000);
+      }
     } catch {
       setSavedNote('שגיאה בשמירה');
     } finally {

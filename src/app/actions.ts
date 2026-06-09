@@ -28,15 +28,33 @@ export interface ReceiptSummary {
   createdAt: string;
 }
 
-/** Create or update a receipt. Returns its id. */
+export type SaveResult =
+  | { ok: true; id: string }
+  | { ok: false; error: string };
+
+/**
+ * Create or update a receipt. The receipt number is unique — saving a
+ * number that already belongs to a different receipt is rejected.
+ */
 export async function saveReceipt(
   data: ReceiptData,
   id?: string
-): Promise<string> {
+): Promise<SaveResult> {
+  const number = data.documentNumber?.trim();
+  if (!number) return { ok: false, error: 'יש להזין מספר חשבונית' };
+
+  // Reject a number already used by another receipt.
+  const existing = await prisma.receipt.findUnique({
+    where: { documentNumber: number },
+  });
+  if (existing && existing.id !== id) {
+    return { ok: false, error: `מספר ${number} כבר קיים` };
+  }
+
   const { subtotal, vatAmount, total } = computeTotals(data);
   const fields = {
     documentType: data.documentType,
-    documentNumber: data.documentNumber,
+    documentNumber: number,
     date: data.date,
     time: data.time,
     customerName: data.customerName,
@@ -47,12 +65,15 @@ export async function saveReceipt(
     data: data as unknown as object,
   };
 
-  const saved = id
-    ? await prisma.receipt.update({ where: { id }, data: fields })
-    : await prisma.receipt.create({ data: fields });
-
-  revalidatePath('/dashboard');
-  return saved.id;
+  try {
+    const saved = id
+      ? await prisma.receipt.update({ where: { id }, data: fields })
+      : await prisma.receipt.create({ data: fields });
+    revalidatePath('/dashboard');
+    return { ok: true, id: saved.id };
+  } catch {
+    return { ok: false, error: 'שגיאה בשמירה' };
+  }
 }
 
 /** All receipts, newest first, as lightweight summaries for the dashboard. */
