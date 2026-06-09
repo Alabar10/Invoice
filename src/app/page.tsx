@@ -6,7 +6,18 @@ import { defaultReceiptData, ReceiptData } from '@/types/receipt';
 const GREEN = '#2a9d8f';
 
 export default function Home() {
-  const [data, setData] = useState<ReceiptData>(defaultReceiptData);
+  const [data, setData] = useState<ReceiptData>(() => {
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    return {
+      ...defaultReceiptData,
+      date: today,
+      time,
+      payments: [{ id: '1', method: 'העברה בנקאית', details: '', date: today, amount: 0 }],
+    };
+  });
   const [loading, setLoading] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
 
@@ -41,6 +52,10 @@ export default function Home() {
 
   const handleNewReceipt = () => {
     const next = parseInt(data.documentNumber) || 0;
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
     setData({
       ...defaultReceiptData,
       businessName: data.businessName,
@@ -49,6 +64,9 @@ export default function Home() {
       businessPhone: data.businessPhone,
       logoUrl: data.logoUrl,
       documentNumber: String(next + 1),
+      date: today,
+      time,
+      payments: [{ id: '1', method: 'העברה בנקאית', details: '', date: today, amount: 0 }],
     });
   };
 
