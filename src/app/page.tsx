@@ -1,64 +1,116 @@
-import Image from "next/image";
+'use client';
+import { useRef, useState } from 'react';
+import ReceiptEditor from '@/components/ReceiptEditor';
+import { defaultReceiptData, ReceiptData } from '@/types/receipt';
+
+const GREEN = '#2a9d8f';
 
 export default function Home() {
+  const [data, setData] = useState<ReceiptData>(defaultReceiptData);
+  const [loading, setLoading] = useState(false);
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  const downloadPdf = async () => {
+    if (!editorRef.current) return;
+    setLoading(true);
+    editorRef.current.classList.add('is-exporting');
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const { default: jsPDF } = await import('jspdf');
+
+      const canvas = await html2canvas(editorRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pdfW = pdf.internal.pageSize.getWidth();
+      const pdfH = (canvas.height * pdfW) / canvas.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfW, Math.min(pdfH, pdf.internal.pageSize.getHeight()));
+      pdf.save(
+        `חשבונית_${data.documentType}_${data.documentNumber}_${data.customerName || 'לקוח'}.pdf`
+      );
+    } finally {
+      editorRef.current?.classList.remove('is-exporting');
+      setLoading(false);
+    }
+  };
+
+  const handleNewReceipt = () => {
+    const next = parseInt(data.documentNumber) || 0;
+    setData({
+      ...defaultReceiptData,
+      businessName: data.businessName,
+      businessTaxId: data.businessTaxId,
+      businessAddress: data.businessAddress,
+      businessPhone: data.businessPhone,
+      logoUrl: data.logoUrl,
+      documentNumber: String(next + 1),
+    });
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div dir="rtl" className="min-h-screen bg-gray-100">
+      {/* Toolbar */}
+      <header
+        className="text-white px-3 sm:px-6 py-3 shadow-md sticky top-0 z-10 print:hidden"
+        style={{ backgroundColor: GREEN }}
+      >
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-3 flex-wrap">
+          <h1 className="font-bold text-base">הפקת חשבוניות</h1>
+
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            {/* VAT toggle */}
+            <label className="flex items-center gap-1.5 text-sm cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={data.includeVat}
+                onChange={(e) => setData({ ...data, includeVat: e.target.checked })}
+                className="w-4 h-4"
+              />
+              כולל מע&quot;מ
+            </label>
+
+            <div className="w-px h-5 bg-white/30" />
+
+            {/* New receipt */}
+            <button
+              onClick={handleNewReceipt}
+              className="bg-white/20 hover:bg-white/30 text-white text-sm px-3 py-1.5 rounded-lg transition-colors"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              + חשבונית חדשה
+            </button>
+
+            {/* Print */}
+            <button
+              onClick={() => window.print()}
+              className="bg-white/20 hover:bg-white/30 text-white text-sm px-3 py-1.5 rounded-lg transition-colors"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              🖨 הדפס
+            </button>
+
+            {/* Download PDF */}
+            <button
+              onClick={downloadPdf}
+              disabled={loading}
+              className="bg-white font-semibold text-sm px-4 py-1.5 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-60"
+              style={{ color: GREEN }}
+            >
+              {loading ? 'מייצר...' : '⬇ הורד PDF'}
+            </button>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      </header>
+
+      {/* Receipt */}
+      <main className="max-w-4xl mx-auto px-4 py-8 print:p-0 print:max-w-none">
+        <p className="text-xs text-gray-400 mb-3 text-center print:hidden">
+          לחץ על כל שדה כדי לערוך
+        </p>
+        <ReceiptEditor ref={editorRef} data={data} onChange={setData} />
       </main>
     </div>
   );
