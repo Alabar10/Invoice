@@ -15,6 +15,8 @@ export default function Home() {
     const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
     return {
       ...defaultReceiptData,
+      // Blank until the real next number loads, to avoid a 1 → 2 flicker.
+      documentNumber: '',
       date: today,
       time,
       payments: [{ id: '1', method: 'העברה בנקאית', details: '', date: today, amount: 0 }],
