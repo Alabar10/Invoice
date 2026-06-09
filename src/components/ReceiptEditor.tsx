@@ -249,12 +249,8 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
             </td>
             <td className="py-2 px-3 text-center font-bold text-xl" style={{ width: '34%' }}>
               <span>מספר : </span>
-              <Field
-                value={data.documentNumber}
-                onChange={(v) => up('documentNumber', v)}
-                placeholder="00001"
-                className="font-bold text-xl text-center w-28"
-              />
+              {/* Auto-assigned and locked — kept unique automatically. */}
+              <span className="font-bold text-xl">{data.documentNumber}</span>
             </td>
             <td className="py-2 px-3 text-left font-bold text-base" style={{ width: '33%' }}>
               <button

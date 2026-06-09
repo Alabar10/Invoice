@@ -102,6 +102,17 @@ async function saveProfile(data: ReceiptData): Promise<void> {
   });
 }
 
+/** Next receipt number = highest saved number + 1 (or 1 if none yet). */
+export async function getNextNumber(): Promise<string> {
+  const rows = await prisma.receipt.findMany({ select: { documentNumber: true } });
+  let max = 0;
+  for (const r of rows) {
+    const n = parseInt(r.documentNumber, 10);
+    if (!Number.isNaN(n) && n > max) max = n;
+  }
+  return String(max + 1);
+}
+
 /** The saved company profile, used to pre-fill new receipts. */
 export async function getProfile(): Promise<BusinessProfile | null> {
   const p = await prisma.businessProfile.findUnique({ where: { id: 'default' } });

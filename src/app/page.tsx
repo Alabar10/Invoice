@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import ReceiptEditor from '@/components/ReceiptEditor';
 import { defaultReceiptData, ReceiptData } from '@/types/receipt';
-import { saveReceipt, getReceipt, getProfile } from './actions';
+import { saveReceipt, getReceipt, getProfile, getNextNumber } from './actions';
 
 const GREEN = '#2a9d8f';
 
@@ -41,11 +41,15 @@ export default function Home() {
       });
       return;
     }
-    getProfile().then((profile) => {
-      if (profile) {
-        setData((prev) => ({ ...prev, ...profile }));
-      }
-    });
+    getProfile()
+      .then((profile) => {
+        if (profile) setData((prev) => ({ ...prev, ...profile }));
+      })
+      .catch(() => {});
+    // Auto-assign the next receipt number from what's already saved.
+    getNextNumber()
+      .then((num) => setData((prev) => ({ ...prev, documentNumber: num })))
+      .catch(() => {});
   }, []);
 
   const handleSave = async () => {
@@ -97,12 +101,18 @@ export default function Home() {
     }
   };
 
-  const handleNewReceipt = () => {
-    const next = parseInt(data.documentNumber) || 0;
+  const handleNewReceipt = async () => {
     const now = new Date();
     const pad = (n: number) => String(n).padStart(2, '0');
     const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
     const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    // Next number comes from the database (highest saved + 1).
+    let nextNumber = data.documentNumber;
+    try {
+      nextNumber = await getNextNumber();
+    } catch {
+      nextNumber = String((parseInt(data.documentNumber) || 0) + 1);
+    }
     setCurrentId(undefined);
     setData({
       ...defaultReceiptData,
@@ -111,7 +121,7 @@ export default function Home() {
       businessAddress: data.businessAddress,
       businessPhone: data.businessPhone,
       logoUrl: data.logoUrl,
-      documentNumber: String(next + 1),
+      documentNumber: nextNumber,
       date: today,
       time,
       payments: [{ id: '1', method: 'העברה בנקאית', details: '', date: today, amount: 0 }],
