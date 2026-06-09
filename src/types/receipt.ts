@@ -37,6 +37,7 @@ export interface ReceiptData {
   vatRate: number;
   discount: number;
   payments: PaymentRow[];
+  documentProducer: string;
 }
 
 function nowDate() {
@@ -72,4 +73,5 @@ export const defaultReceiptData: ReceiptData = {
   vatRate: 18,
   discount: 0,
   payments: [{ id: '1', method: 'העברה בנקאית', details: '', date: nowDate(), amount: 0 }],
+  documentProducer: '',
 };

@@ -623,14 +623,24 @@ const ReceiptEditor = forwardRef<HTMLDivElement, Props>(({ data, onChange }, ref
 
       {/* ── SIGNATURE & FOOTER ── */}
       <div className="mt-12 text-sm">
-        <div className="flex justify-between items-end mb-1">
-          <div className="text-right font-bold">מפיק המסמך:</div>
-          <div className="text-left text-xs">
+        <div className="flex justify-between items-start mb-1">
+          {/* Right: document producer (editable) */}
+          <div className="text-right">
+            <div className="font-bold mb-1">מפיק המסמך:</div>
+            <div className="flex items-baseline gap-1">
+              <Field
+                value={data.documentProducer}
+                onChange={(v) => up('documentProducer', v)}
+                placeholder={data.businessName || 'שם המפיק'}
+                className="text-xs w-44 text-right"
+              />
+              <span className="text-xs">_______________</span>
+            </div>
+          </div>
+          {/* Left: recipient signature line (filled by hand after print) */}
+          <div className="text-left text-xs pt-6">
             שם המקבל_____________ חתימה___________ תאריך__________
           </div>
-        </div>
-        <div className="text-right text-xs">
-          {data.businessName || 'שם העסק'} _______________
         </div>
       </div>
     </div>
