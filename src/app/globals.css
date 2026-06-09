@@ -35,41 +35,24 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Hide interactive elements when exporting to PDF */
+/* ── PDF export: hide all interactive controls, show clean text spans ── */
+.export-only {
+  display: none;
+}
+
 .is-exporting .no-export,
-.is-exporting button.no-export-border {
-  display: none !important;
-}
-
-.is-exporting input,
-.is-exporting select,
-.is-exporting textarea {
-  border-bottom-color: transparent !important;
-  background: transparent !important;
-  pointer-events: none;
-}
-
-.is-exporting input::placeholder,
-.is-exporting textarea::placeholder {
-  color: transparent !important;
-}
-
-.is-exporting input[type="date"] {
-  display: none !important;
-}
-
-.is-exporting select {
-  -webkit-appearance: none !important;
-  appearance: none !important;
-}
-
 .is-exporting button {
   display: none !important;
 }
 
-.export-only {
-  display: none;
+/* Hide every editable control during export — each has a sibling .export-only span */
+.is-exporting input,
+.is-exporting select,
+.is-exporting textarea {
+  display: none !important;
 }
+
+/* Reveal the static text spans during export */
 .is-exporting .export-only {
   display: inline !important;
 }
